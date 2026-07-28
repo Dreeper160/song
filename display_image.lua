@@ -24,6 +24,27 @@ if not monitor then
     return
 end
 
+-- Correspondance chiffre .nfp -> constante colors.xxx
+-- (equivalent manuel de colors.fromBlit, absent des versions plus anciennes de CC:Tweaked)
+local BLIT_TO_COLOUR = {
+    ["0"] = colors.white,
+    ["1"] = colors.orange,
+    ["2"] = colors.magenta,
+    ["3"] = colors.lightBlue,
+    ["4"] = colors.yellow,
+    ["5"] = colors.lime,
+    ["6"] = colors.pink,
+    ["7"] = colors.gray,
+    ["8"] = colors.lightGray,
+    ["9"] = colors.cyan,
+    ["a"] = colors.purple,
+    ["b"] = colors.blue,
+    ["c"] = colors.brown,
+    ["d"] = colors.green,
+    ["e"] = colors.red,
+    ["f"] = colors.black,
+}
+
 local image = paintutils.loadImage(imagePath)
 if not image then
     print("Impossible de charger l'image (format .nfp attendu).")
@@ -41,9 +62,15 @@ if palettePath then
     else
         local ok, palette = pcall(dofile, palettePath)
         if ok and type(palette) == "table" then
+            local count = 0
             for hexChar, rgb in pairs(palette) do
-                monitor.setPaletteColor(colors.fromBlit(hexChar), rgb)
+                local colourConst = BLIT_TO_COLOUR[hexChar]
+                if colourConst then
+                    monitor.setPaletteColor(colourConst, rgb)
+                    count = count + 1
+                end
             end
+            print("Palette personnalisee appliquee (" .. count .. " couleurs).")
         else
             print("Palette invalide, affichage avec la palette par defaut.")
         end
